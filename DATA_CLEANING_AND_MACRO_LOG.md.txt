@@ -1,0 +1,60 @@
+# Data Cleaning and Macro Addition Log
+
+## Data Cleaning Steps
+
+1. **Prepared New Sheet**
+   - Identified relevant columns from old database.
+   - Renamed columns to a more meaningful format.
+   - Transferred all relevant data from multiple sheets in old database to a single sheet in the new database
+   - Reason: Easier cleaning of data instead of deleting irrelevant columns in old database in clearing formatting.
+
+2. **Create a Unique Control Number for Each Row**
+   - Created column "assigned_number" with a formula 'COUNTIF($I$2:I2,I2)' where a number is assigned to every row depending on its location2 or City where it belongs so that it has a unique number only within its City.
+   - Created column "assigned letter" with a formula 
+
+   '''plaintext
+   =IF($I2="Himamaylan","J1",IF($I2="Bago","O",IF($I2="Hinoba-an","Q1",IF($I2="Sipalay","P1",IF($I2="Cauayan","O1",IF($I2="Pontevedra","C1",IF($I2="Valladolid","A1",IF($I2="Moises Padilla","F1",IF($I2="Candoni","N1",IF   ($I2="Binalbagan","I1",IF($I2="La Carlota","D1",IF($I2="La Castellana","E1",IF($I2="Hinigaran","G1",IF($I2="Isabela","H1",IF($I2="Kabankalan","K1",IF($I2="Ilog","M1",IF($I2="Tabugon","L1","")))))))))))))))))'
+   '''
+ 
+Using a nested IF formula, a letter will be assigned depending on the location2 of the row.
+   - Created column "control_number" with a formula CONCATENATE($C2,"-",$B2). This formula will add the 2 strings from assigned_letter and assigned_number to create a unique control number for the row. 
+   - Reason: Eliminate duplicate entries in future entries and automate control number creation.
+
+3. **Transferred Erroneous Control Numbers**:
+   - Manually inspected data.
+   - Transferred duplicate/missing control number to separate sheet.
+   - Manually deleted blank rows.
+   - Reason: To ensure data integrity and avoid redundancy.
+
+
+## Macros Added
+
+1. **Data Entry Macro**:
+   - Created a macro that automatically copies the data in the data entry sheet and deletes after.
+   - VBA Code:
+     ```vba
+     Sub data_entry()
+    Dim wsEntry As Worksheet
+    Dim wsDatabase As Worksheet
+    Dim lastRow As Long
+    Dim entryRange As Range
+    'Preparing the environment'
+  
+    Set wsEntry = ThisWorkbook.Sheets("data_entry")
+    Set entryRange = wsEntry.Range("F12:L12")
+    Set wsDatabase = ThisWorkbook.Sheets("data") 
+    'Setting aliases'
+
+    With wsDatabase
+        lastRow = .Cells(.Rows.Count, "D").End(xlUp).Row
+        If lastRow < 2 Then lastRow = 1 ' Adjust for headers if necessary
+        entryRange.Copy Destination:=.Cells(lastRow + 1, 4) ' Paste starting from column D (4th column)
+    End With
+    'Finds the last row'
+
+    entryRange.ClearContents 'Clears the contents of the data entry row'
+
+End Sub
+
+     ```
+   - Reason: For ease of encoding new data.
